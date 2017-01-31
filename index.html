@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href='https://fonts.googleapis.com/css?family=Luckiest+Guy' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <title>Pomodoro Timer</title>
+    <script>
+        var run;
+        var active = false;
+        var work = true;
+        var rest = false;
+        var timer = {
+            workTime: [25, 0],
+            restTime:[5, 0],
+            time: [25, 0],
+            pad: function(n){
+                return (n < 10) ? ("0" + n) : n.toString();
+            },
+            addTime: function(){
+                timer.time[0] = parseInt(timer.time[0]);
+                timer.time[0] += 1;
+                timer.displayTime();
+            },
+            subTime: function(){
+                timer.time[0] = parseInt(timer.time[0]);
+                timer.time[0] -= 1;
+                timer.displayTime();
+            },
+            submit: function(){
+                var workValue = $("#workInput").val();
+                var restValue = $("#restInput").val();
+                if(workValue.indexOf(/[\D]/) == -1 && workValue >= 0 && workValue <= 100){
+                    timer.workTime[0] = workValue;
+                    if(work){
+                        if(!active){
+                            timer.time = timer.workTime;
+                        }
+                    }
+                    timer.displayTime();
+                }
+                if(restValue.indexOf(/[\D]/) == -1 && restValue >= 0 && restValue <= 100){
+                    timer.restTime[0] = restValue;
+                    if(rest){
+                        if(!active){
+                            timer.time = timer.restTime;
+                        }
+                    }
+                    timer.displayTime();
+                }
+            },
+            displayTime: function(){
+                var str = timer.time[0] + ":" + timer.pad(timer.time[1]);
+                $(".timer").text(str);
+            },
+            updateTime: function(){
+                if(timer.time[1] == 0){
+                    if(timer.time[0] != 0){
+                        timer.time = [timer.time[0] - 1, 59];
+                    }
+                    else{
+                        clearInterval(run);
+                        active = false;
+                        alert("Time's up!");
+                        if(work){
+                            work = false;
+                            rest = true;
+                            timer.time = timer.restTime;
+                        }
+                        else{
+                            work = true;
+                            rest = false;
+                            timer.time = timer.workTime;
+                        }
+                        timer.displayTime();
+                    }
+                }
+                else{
+                    timer.time = [timer.time[0], timer.time[1] -= 1];
+                }
+                timer.displayTime();
+            }
+        };
+
+        $(document).ready(function(){
+            $("#time").on("click", function(){
+                if(!active){
+                    run = setInterval(timer.updateTime, 1000);
+                    active = true;
+                }
+                else{
+                    clearInterval(run);
+                    active = false;
+                }
+            });
+            $("#more").on("click", function(){
+                if(!active && timer.time[0] <= 100){
+                    timer.addTime();
+                }
+            });
+            $("#less").on("click", function(){
+                if(!active && timer.time[0] > 0){
+                    timer.subTime();
+                }
+            });
+            $("#settingsButton").on("click", function(){
+                $("#settings").toggleClass('on');
+            });
+            $("#reset").on("click", function(){
+                $("#workInput").val(function(){
+                    return 25;
+                });
+                $("#restInput").val(function(){
+                    return 5;
+                });
+            });
+            $("#submit").on("click", function(){
+                timer.submit();
+            });
+        });
+    </script>
+    <style>
+        ::-moz-selection {
+            color: #EAEAEA;
+            background: #5DA271;
+            text-shadow: 3px 3px #EA3F2C;
+        }
+        ::selection {
+            color: #EAEAEA;
+            background: #5DA271;
+            text-shadow: 3px 3px #EA3F2C;
+        }
+        body{
+            background-color: #EA3F2C;
+            color: #EAEAEA;
+            font-family: 'Luckiest Guy', sans-serif;
+            font-size: 36px;
+            text-shadow: 3px 3px #5DA271;
+            height: 100%;
+            width: 100%;
+        }
+        button {
+            background: none;
+            border: none;
+            color: #EA3F2C;
+            font-family: 'Luckiest Guy', sans-serif;
+            font-size: 48px;
+            margin: 0;
+            padding: 0;
+            text-shadow: 3px 3px #5DA271;
+        }
+        h1{
+            font-size: 60px;
+            text-align: center;
+        }
+        input{
+            padding-left:25px;;
+        }
+        input[type = text] {
+            width: 90%;
+            color: #EA3F2C;
+            text-shadow: 3px 3px #5DA271;
+            font-size: 36px;
+            font-family: 'Luckiest Guy', sans-serif;
+            padding: 5px 5px;
+            box-sizing: border-box;
+            border: 1px solid  #5DA271;
+            background-color: #EAEAEA;
+            resize: none;
+        }
+        .parent{
+            display: flex;
+            justify-content: center;
+
+        }
+        .child{
+            margin: auto;
+        }
+        #circle{
+            align-items: center;
+            background-color: #EAEAEA;
+            border: 5px solid  #5DA271;
+            border-radius: 200px;
+            display: flex;
+            height: 400px;
+            justify-content: space-around;
+            margin-top: 10px;
+            width: 400px;
+        }
+        #settings{
+            background-color: #EAEAEA;
+            border: 5px solid  #5DA271;
+            border-left: 0;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+            color: #EA3F2C;
+            text-shadow: 3px 3px #5DA271;
+            position: fixed;
+            top: 150px;
+            left: -220px;
+            height: 400px;
+            width: 200px;
+            -webkit-transition-duration: 0.2s;
+            -moz-transition-duration: 0.2s;
+            -o-transition-duration: 0.2s;
+            transition-duration: 0.2s;
+        }
+        #settings.on{
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="parent">
+        <button><i class="fa fa-cogs" style="color: #EAEAEA" aria-hidden="true" id="settingsButton"></i></button>
+        <div class="child" id="settings">
+            <div>
+                <span style="padding: 20px 0 20px 0">
+                 &nbsp;Work
+                <input value="25" type="text" id="workInput">
+                </span>
+                <p></p>
+                <span style="padding: 20px 0 20px 0">
+                &nbsp;Break
+                <input value="5" type="text" id="restInput">
+                </span>
+                <p></p>
+                <button style="font-size: 36px" id="submit">&nbsp;Submit</button>
+                <p></p>
+                <button style="font-size: 36px" id="reset">&nbsp;Reset</button>
+            </div>
+        </div>
+        <div class="child">
+            <h1>Pomodoro Timer</h1>
+        </div>
+    </div>
+    <div class="parent">
+        <div class="child">
+            <div id="circle">
+                <button style="font-size: 72px" id="less">-</button>
+                <button type="button" class="timer" id="time">25:00</button>
+                <button style="font-size: 72px" id="more">+</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
